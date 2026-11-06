@@ -1,0 +1,42 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@protected": true,
+
+    "VerifiableDataSpace": "https://w3id.org/eunomia/vds/ns#VerifiableDataSpace",
+
+    "version": {"@id": "https://w3id.org/eunomia/vds/ns#version", "@type": "@id"},
+    "supersedes": {"@id": "https://w3id.org/eunomia/vds/ns#supersedes", "@type": "@id"},
+    "tag": "https://w3id.org/eunomia/vds/ns#tag",
+    "validFrom": {"@id": "https://www.w3.org/2018/credentials#validFrom", "@type": "http://www.w3.org/2001/XMLSchema#dateTime"},
+    "validUntil": {"@id": "https://www.w3.org/2018/credentials#validUntil", "@type": "http://www.w3.org/2001/XMLSchema#dateTime"},
+    "threshold": "https://w3id.org/eunomia/vds/ns#threshold",
+    "proof": {"@id": "https://w3id.org/security#proof", "@type": "@id", "@container": "@graph"},
+
+    "trustAnchors": "https://w3id.org/eunomia/vds/ns#trustAnchors",
+    "endpoint": {"@id": "https://w3id.org/eunomia/vds/ns#endpoint", "@type": "@id"},
+    "vad": {"@id": "https://w3id.org/eunomia/vds/ns#vad", "@type": "@id"},
+
+    "credentialTypes": {
+      "@id": "https://w3id.org/eunomia/vds/ns#credentialTypes",
+      "@context": {
+        "id": "https://w3id.org/eunomia/vds/ns#credentialTypeName"
+      }
+    },
+    "validity": {
+      "@id": "https://w3id.org/eunomia/vds/ns#validity",
+      "@type": "@vocab",
+      "@context": {
+        "point-in-time": "https://w3id.org/eunomia/vds/ns#PointInTime",
+        "current": "https://w3id.org/eunomia/vds/ns#Current"
+      }
+    },
+    "maxValidity": {"@id": "https://w3id.org/eunomia/vds/ns#maxValidity", "@type": "http://www.w3.org/2001/XMLSchema#duration"},
+    "schema": "https://w3id.org/eunomia/vds/ns#schema",
+    "path": "https://w3id.org/eunomia/vds/ns#path",
+
+    "delegation": "https://w3id.org/eunomia/vds/ns#delegation",
+    "anchor": {"@id": "https://w3id.org/eunomia/vds/ns#anchor", "@type": "@id"},
+    "vadVersion": {"@id": "https://w3id.org/eunomia/vds/ns#vadVersion", "@type": "@id"}
+  }
+}

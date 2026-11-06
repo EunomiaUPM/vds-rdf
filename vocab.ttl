@@ -1,0 +1,232 @@
+@prefix vdsns:   <https://w3id.org/eunomia/vds/ns#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix vann:    <http://purl.org/vocab/vann/> .
+@prefix cred:    <https://www.w3.org/2018/credentials#> .
+
+# Terms reused rather than redefined: name (schema:name), validFrom and
+# validUntil (cred:), digestSRI (cred:), proof (sec:proof), all from the
+# W3C VC 2.0 context.
+
+<https://w3id.org/eunomia/vds/ns#>
+    a owl:Ontology ;
+    dcterms:title "Verifiable Data Space (VDS) and Verifiable Anchor Delegation (VAD) vocabulary"@en ;
+    dcterms:description "Terms used by the VDS and VAD objects and by the termsOfUse binding of a credential to them."@en ;
+    owl:versionInfo "1.0" ;
+    vann:preferredNamespacePrefix "vdsns" ;
+    vann:preferredNamespaceUri "https://w3id.org/eunomia/vds/ns#" .
+
+# ---------------------------------------------------------------- classes
+
+vdsns:VerifiableDataSpace
+    a rdfs:Class ;
+    rdfs:label "Verifiable Data Space"@en ;
+    rdfs:comment "Signed, content-addressed and versioned object that lists the trust anchors of a Data Space and the credential types it admits. Its identifier is the digest of the genesis version; each new version needs the proofs of a threshold of the anchors of the version it supersedes."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:VerifiableAnchorDelegation
+    a rdfs:Class ;
+    rdfs:label "Verifiable Anchor Delegation"@en ;
+    rdfs:comment "Signed, content-addressed and versioned object through which a single trust anchor delegates issuance to the issuers it lists, within one Data Space."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:TrustAnchor
+    a rdfs:Class ;
+    rdfs:label "Trust anchor"@en ;
+    rdfs:comment "Entry of trustAnchors: a party that co-governs the Data Space, identified by its DID."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:DelegatedIssuer
+    a rdfs:Class ;
+    rdfs:label "Delegated issuer"@en ;
+    rdfs:comment "Entry of issuers: a party, identified by its DID, that an anchor authorizes to issue on its behalf."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:CredentialTypeEntry
+    a rdfs:Class ;
+    rdfs:label "Credential type entry"@en ;
+    rdfs:comment "Entry of credentialTypes: a credential type the Data Space admits, with its validity mode, maximum lifetime and schema."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:SchemaReference
+    a rdfs:Class ;
+    rdfs:label "Schema reference"@en ;
+    rdfs:comment "Location, relative to an anchor's endpoint, and Subresource Integrity digest of the schema credentials of a type must conform to."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:Delegation
+    a rdfs:Class ;
+    rdfs:label "Delegation"@en ;
+    rdfs:comment "Part of a credential's binding, present only when its issuer is not a trust anchor: the anchor whose delegation the issuer invokes and the version of that anchor's VAD in force at issuance."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:ValidityMode
+    a rdfs:Class ;
+    rdfs:label "Validity mode"@en ;
+    rdfs:comment "How credentials of a type are judged once the Data Space changes."@en ;
+    owl:oneOf ( vdsns:PointInTime vdsns:Current ) ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:PointInTime
+    a vdsns:ValidityMode ;
+    rdfs:label "point-in-time"@en ;
+    rdfs:comment "The credential is judged against the trust configuration in force when it was issued, and remains valid when that configuration later changes."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:Current
+    a vdsns:ValidityMode ;
+    rdfs:label "current"@en ;
+    rdfs:comment "The credential must pass the point-in-time check and, in addition, remain authorized under the current trust configuration."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+# ------------------------------------------------- versioning (VDS and VAD)
+
+vdsns:version
+    a rdf:Property ;
+    rdfs:label "version"@en ;
+    rdfs:comment "Content identifier (digest) of one exact version. In a VDS or VAD, the version itself; in a credential's binding, the VDS version in force when the credential was issued."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:supersedes
+    a rdf:Property ;
+    rdfs:label "supersedes"@en ;
+    rdfs:comment "Version of the immediate predecessor in the chain. Absent in the genesis."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:tag
+    a rdf:Property ;
+    rdfs:label "tag"@en ;
+    rdfs:comment "Human-readable version label."@en ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+# ------------------------------------------------------------------- VDS
+
+vdsns:threshold
+    a rdf:Property ;
+    rdfs:label "threshold"@en ;
+    rdfs:comment "Transition rule t/n: how many of the n anchors of this version must sign the next one for it to be accepted as its successor."@en ;
+    rdfs:domain vdsns:VerifiableDataSpace ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:trustAnchors
+    a rdf:Property ;
+    rdfs:label "trust anchors"@en ;
+    rdfs:comment "The anchors that govern the Data Space in this version."@en ;
+    rdfs:domain vdsns:VerifiableDataSpace ;
+    rdfs:range vdsns:TrustAnchor ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:endpoint
+    a rdf:Property ;
+    rdfs:label "endpoint"@en ;
+    rdfs:comment "Base URL where an anchor or issuer serves the documents of the Data Space."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:vad
+    a rdf:Property ;
+    rdfs:label "VAD"@en ;
+    rdfs:comment "Identifier of the genesis of the anchor's VAD. Present only if the anchor delegates; it can only appear through a version transition."@en ;
+    rdfs:domain vdsns:TrustAnchor ;
+    rdfs:range vdsns:VerifiableAnchorDelegation ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:credentialTypes
+    a rdf:Property ;
+    rdfs:label "credential types"@en ;
+    rdfs:comment "The credential types the Data Space admits in this version."@en ;
+    rdfs:domain vdsns:VerifiableDataSpace ;
+    rdfs:range vdsns:CredentialTypeEntry ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:credentialTypeName
+    a rdf:Property ;
+    rdfs:label "credential type name"@en ;
+    rdfs:comment "Name of the credential type, as it appears in the type of the credential. Written as id in JSON."@en ;
+    rdfs:domain vdsns:CredentialTypeEntry ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:validity
+    a rdf:Property ;
+    rdfs:label "validity"@en ;
+    rdfs:comment "Validity mode of the type. The mode that counts is the one the current version declares."@en ;
+    rdfs:domain vdsns:CredentialTypeEntry ;
+    rdfs:range vdsns:ValidityMode ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:maxValidity
+    a rdf:Property ;
+    rdfs:label "maximum validity"@en ;
+    rdfs:comment "Longest validity window a credential of the type may declare, as an ISO 8601 duration."@en ;
+    rdfs:domain vdsns:CredentialTypeEntry ;
+    rdfs:range xsd:duration ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:schema
+    a rdf:Property ;
+    rdfs:label "schema"@en ;
+    rdfs:comment "Schema that credentials of the type must conform to."@en ;
+    rdfs:domain vdsns:CredentialTypeEntry ;
+    rdfs:range vdsns:SchemaReference ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:path
+    a rdf:Property ;
+    rdfs:label "path"@en ;
+    rdfs:comment "Path of the schema, resolved against the endpoint of whichever anchor the verifier asks. Its content is pinned by digestSRI."@en ;
+    rdfs:domain vdsns:SchemaReference ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+# ------------------------------------------------------------------- VAD
+
+vdsns:dataSpace
+    a rdf:Property ;
+    rdfs:label "Data Space"@en ;
+    rdfs:comment "Identifier (genesis) of the Data Space the VAD belongs to."@en ;
+    rdfs:domain vdsns:VerifiableAnchorDelegation ;
+    rdfs:range vdsns:VerifiableDataSpace ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:anchor
+    a rdf:Property ;
+    rdfs:label "anchor"@en ;
+    rdfs:comment "DID of a trust anchor. In a VAD, the anchor that delegates; in a credential's delegation, the anchor whose delegation the issuer invokes."@en ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:issuers
+    a rdf:Property ;
+    rdfs:label "issuers"@en ;
+    rdfs:comment "The issuers the anchor authorizes to issue on its behalf."@en ;
+    rdfs:domain vdsns:VerifiableAnchorDelegation ;
+    rdfs:range vdsns:DelegatedIssuer ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:authorizedCredentialTypes
+    a rdf:Property ;
+    rdfs:label "authorized credential types"@en ;
+    rdfs:comment "Names of the credential types, among those the Data Space admits, the issuer is restricted to. Without it, the issuer is authorized for all of them. Written as credentialTypes in JSON."@en ;
+    rdfs:domain vdsns:DelegatedIssuer ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+# -------------------------------------------------- credential binding
+
+vdsns:delegation
+    a rdf:Property ;
+    rdfs:label "delegation"@en ;
+    rdfs:comment "Delegation invoked by a credential's issuer, in the termsOfUse binding."@en ;
+    rdfs:range vdsns:Delegation ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
+
+vdsns:vadVersion
+    a rdf:Property ;
+    rdfs:label "VAD version"@en ;
+    rdfs:comment "Version of the anchor's VAD under which the credential was issued."@en ;
+    rdfs:domain vdsns:Delegation ;
+    rdfs:isDefinedBy <https://w3id.org/eunomia/vds/ns#> .
